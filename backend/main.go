@@ -3,7 +3,9 @@ package main
 import (
 	"errors"
 	"fmt"
+	"net/url"
 	"os"
+	"strings"
 
 	"gopkg.in/yaml.v2"
 )
@@ -27,9 +29,18 @@ func LoadPathsFromFile(filepath string) ([]string, error) {
 	return config.Paths, nil
 }
 
-func ParseBaseUrl(url string) (string, error) {
-	// TODO
-	return "", nil
+func ParseBaseUrl(input string) (string, error) {
+	if !strings.HasPrefix(input, "http") && !strings.HasPrefix(input, "https") {
+		return "", errors.New("url must start with http or https")
+	}
+	u, err := url.Parse(input)
+	if err != nil {
+		return "", errors.New("error parsing url")
+	}
+	u.Path = "/"
+	u.RawQuery = ""
+	u.Fragment = ""
+	return u.String(), nil
 }
 
 func BuildScanUrls(base string, paths []string) ([]string, error) {
@@ -38,11 +49,15 @@ func BuildScanUrls(base string, paths []string) ([]string, error) {
 }
 
 func main() {
-	paths, err := LoadPathsFromFile("paths.yaml")
-	if err != nil {
-		fmt.Println("Error loading paths:", err)
-		return
+	tests := []string{
+		"https://stackoverflow.com/questions/5948659/when-should-i-use-a-trailing-slash-in-my-url",
+		"http://chatgpt.com/c/6811c189-d6d4-8012-b2db-b8abcef1d053",
+		"https://pkg.go.dev/net/url#URL",
+		"http://cscsc.edu?q=123#abc",
 	}
-	fmt.Println("Loaded paths:", paths)
-	fmt.Println("Count: ", len(paths))
+
+	for _, test := range tests {
+		res, _ := ParseBaseUrl(test)
+		fmt.Println(res)
+	}
 }
