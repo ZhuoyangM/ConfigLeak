@@ -1,8 +1,7 @@
-package main
+package scanner
 
 import (
 	"errors"
-	"fmt"
 	"net/url"
 	"os"
 	"path"
@@ -58,20 +57,4 @@ func BuildScanUrls(base string, paths []string) ([]string, error) {
 		fullUrls = append(fullUrls, fullUrl.String())
 	}
 	return fullUrls, nil
-}
-
-func main() {
-	tests := []string{
-		"https://stackoverflow.com/questions/5948659/when-should-i-use-a-trailing-slash-in-my-url",
-		"http://chatgpt.com/c/6811c189-d6d4-8012-b2db-b8abcef1d053",
-		"https://pkg.go.dev/net/url#URL",
-		"http://cscsc.edu?q=123#abc",
-	}
-
-	paths, _ := LoadPathsFromFile("paths.yaml")
-	fullUrls, err := BuildScanUrls(tests[3], paths)
-	if err != nil {
-		fmt.Println("Error:", err)
-	}
-	fmt.Println("Full URLs: ", fullUrls)
 }
