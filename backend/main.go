@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"path"
 	"strings"
 
 	"gopkg.in/yaml.v2"
@@ -44,8 +45,19 @@ func ParseBaseUrl(input string) (string, error) {
 }
 
 func BuildScanUrls(base string, paths []string) ([]string, error) {
-	// TODO
-	return nil, nil
+	parsedBase, err := ParseBaseUrl(base)
+	if err != nil {
+		return nil, err
+	}
+
+	baseUrl, _ := url.Parse(parsedBase)
+	var fullUrls []string
+	for _, p := range paths {
+		fullUrl := *baseUrl
+		fullUrl.Path = path.Join(baseUrl.Path, p)
+		fullUrls = append(fullUrls, fullUrl.String())
+	}
+	return fullUrls, nil
 }
 
 func main() {
@@ -56,8 +68,10 @@ func main() {
 		"http://cscsc.edu?q=123#abc",
 	}
 
-	for _, test := range tests {
-		res, _ := ParseBaseUrl(test)
-		fmt.Println(res)
+	paths, _ := LoadPathsFromFile("paths.yaml")
+	fullUrls, err := BuildScanUrls(tests[3], paths)
+	if err != nil {
+		fmt.Println("Error:", err)
 	}
+	fmt.Println("Full URLs: ", fullUrls)
 }
