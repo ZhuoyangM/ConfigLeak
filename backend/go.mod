@@ -2,4 +2,7 @@ module github.com/ZhuoyangM/ConfigLeak
 
 go 1.21.1
 
-require gopkg.in/yaml.v2 v2.4.0 // indirect
+require (
+	github.com/google/uuid v1.6.0 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
+)
