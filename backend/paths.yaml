@@ -1,0 +1,21 @@
+paths:
+  - /.env                     # Environment variables
+  - /.git/config             # Git repo leak
+  - /.svn/entries            # Subversion repo
+  - /.htaccess               # Apache config
+  - /config.php              # PHP app config
+  - /config.json             # JSON-based config
+  - /wp-config.php           # WordPress config
+  - /wp-config.php.bak       # Backup of WordPress config
+  - /backup.zip              # Common zipped backup
+  - /backup.tar.gz           # Tar backup archive
+  - /db.sql                  # MySQL/MariaDB dump
+  - /database.sql            # Alt DB dump
+  - /dump.sql                # Another common dump name
+  - /site_backup.zip         # Descriptive backup
+  - /website-source-code.zip # Source dump
+  - /source.tar.gz           # Tarball of source
+  - /index.php~              # Vim/Emacs swap/backup
+  - /index.bak               # Manual backup
+  - /debug.log               # Debug logs
+  - /phpinfo.php             # PHP environment exposure
