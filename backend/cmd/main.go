@@ -1,27 +1,15 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
-	"github.com/ZhuoyangM/ConfigLeak/internal/models"
+	store "github.com/ZhuoyangM/ConfigLeak/internal/store"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
-type DbConfig struct {
-	Host     string
-	Username string
-	Password string
-	Port     string
-	DbName   string
-	SSLMode  string
-}
-
 type Config struct {
-	db DbConfig
+	DB store.DBConfig
 }
 
 func loadEnvConfig() (Config, error) {
@@ -30,7 +18,7 @@ func loadEnvConfig() (Config, error) {
 	if err != nil {
 		return cfg, err
 	}
-	cfg.db = DbConfig{
+	cfg.DB = store.DBConfig{
 		Host:     os.Getenv("POSTGRES_HOST"),
 		Username: os.Getenv("POSTGRES_USER"),
 		Password: os.Getenv("POSTGRES_PASSWORD"),
@@ -41,20 +29,6 @@ func loadEnvConfig() (Config, error) {
 	return cfg, nil
 }
 
-func initDB(cfg Config) (*gorm.DB, error) {
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
-		cfg.db.Host, cfg.db.Username, cfg.db.Password, cfg.db.DbName, cfg.db.Port, cfg.db.SSLMode)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		return db, err
-	}
-	err = db.AutoMigrate(&models.User{}, &models.ScanJob{}, &models.ScanResult{})
-	if err != nil {
-		return db, err
-	}
-	return db, nil
-}
-
 func main() {
 	// load config
 	cfg, err := loadEnvConfig()
@@ -63,9 +37,20 @@ func main() {
 	}
 
 	// Initialize database
-	_, err = initDB(cfg)
+	db, err := store.InitDB(cfg.DB)
 	if err != nil {
-		panic("failed to initialize database")
+		panic("failed to connect to database")
+	}
+	sqlDB, err := db.DB()
+	if err != nil {
+		panic("failed to get sqlDB")
+	}
+	defer sqlDB.Close()
+
+	//Migrate the database
+	err = store.Migrate(db)
+	if err != nil {
+		panic("failed to migrate database")
 	}
 
 	// setup gin router
