@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"github.com/ZhuoyangM/ConfigLeak/internal/models"
 	"github.com/ZhuoyangM/ConfigLeak/internal/store"
+	"github.com/gin-gonic/gin"
 )
 
 type ScanController struct {
@@ -15,27 +15,27 @@ func NewScanController(scanService store.ScanService) *ScanController {
 	}
 }
 
-// GET /scan
-func (c *ScanController) GetAllScanJobs(scanJobID int) (*models.ScanJob, error) {
-	return nil, nil
+// GET /api/jobs
+func (sc *ScanController) GetAllScanJobs(c *gin.Context) {
+
 }
 
-// POST /scan
-func (c *ScanController) StartScan(scanJobID int) error {
-	return nil
+// POST /api/jobs
+func (sc *ScanController) StartScan(c *gin.Context) {
+
 }
 
-// GET /scan/:id
-func (c *ScanController) GetScanJob(scanJobID int) (*models.ScanJob, error) {
-	return nil, nil
+// GET /api/jobs/:id
+func (sc *ScanController) GetScanJob(c *gin.Context) {
+
 }
 
-// DELETE /scan/:id
-func (c *ScanController) DeleteScanJob(scanJobID int) error {
-	return nil
+// DELETE /api/jobs/:id
+func (sc *ScanController) DeleteScanJob(c *gin.Context) {
+
 }
 
-// GET /scan/:id/result
-func (c *ScanController) GetScanResults(scanJobID int) ([]models.ScanResult, error) {
-	return nil, nil
+// GET /api/jobs/:id/results
+func (sc *ScanController) GetScanResults(c *gin.Context) {
+
 }

@@ -4,6 +4,8 @@ import (
 	"time"
 )
 
+// TODO: Switch id to uuid
+
 // pointer indicates that the field is nullable
 type User struct {
 	ID       uint   `gorm:"primaryKey"`
