@@ -3,7 +3,6 @@ package store
 import (
 	"context"
 
-	"github.com/ZhuoyangM/ConfigLeak/internal/models"
 	"gorm.io/gorm"
 )
 
@@ -12,12 +11,12 @@ type ScanService struct {
 	ctx context.Context
 }
 
-func (service *ScanService) CreateScanJob(scanJob *models.ScanJob) error {
+func (service *ScanService) CreateScanJob(scanJob *ScanJob) error {
 	return service.db.WithContext(service.ctx).Create(scanJob).Error
 }
 
-func (service *ScanService) GetScanJobByID(id uint) (*models.ScanJob, error) {
-	var scanJob models.ScanJob
+func (service *ScanService) GetScanJobByID(id uint) (*ScanJob, error) {
+	var scanJob ScanJob
 	err := service.db.WithContext(service.ctx).First(&scanJob, id).Error
 	if err != nil {
 		return nil, err
@@ -25,8 +24,8 @@ func (service *ScanService) GetScanJobByID(id uint) (*models.ScanJob, error) {
 	return &scanJob, nil
 }
 
-func (service *ScanService) GetScanJobsByUserID(userID uint) ([]models.ScanJob, error) {
-	var scanJobs []models.ScanJob
+func (service *ScanService) GetScanJobsByUserID(userID uint) ([]ScanJob, error) {
+	var scanJobs []ScanJob
 	err := service.db.WithContext(service.ctx).Where("user_id = ?", userID).Find(&scanJobs).Error
 	if err != nil {
 		return nil, err
@@ -34,19 +33,19 @@ func (service *ScanService) GetScanJobsByUserID(userID uint) ([]models.ScanJob, 
 	return scanJobs, nil
 }
 
-func (service *ScanService) CreateScanResult(scanResult *models.ScanResult) error {
+func (service *ScanService) CreateScanResult(scanResult *ScanResult) error {
 	return service.db.WithContext(service.ctx).Create(scanResult).Error
 }
-func (service *ScanService) GetScanResultByID(id uint) (*models.ScanResult, error) {
-	var scanResult models.ScanResult
+func (service *ScanService) GetScanResultByID(id uint) (*ScanResult, error) {
+	var scanResult ScanResult
 	err := service.db.WithContext(service.ctx).First(&scanResult, id).Error
 	if err != nil {
 		return nil, err
 	}
 	return &scanResult, nil
 }
-func (service *ScanService) GetScanResultsByJobID(jobID uint) ([]models.ScanResult, error) {
-	var scanResults []models.ScanResult
+func (service *ScanService) GetScanResultsByJobID(jobID uint) ([]ScanResult, error) {
+	var scanResults []ScanResult
 	err := service.db.WithContext(service.ctx).Where("scan_job_id = ?", jobID).Find(&scanResults).Error
 	if err != nil {
 		return nil, err

@@ -3,7 +3,6 @@ package store
 import (
 	"fmt"
 
-	"github.com/ZhuoyangM/ConfigLeak/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -28,5 +27,5 @@ func InitDB(cfg DBConfig) (*gorm.DB, error) {
 }
 
 func Migrate(db *gorm.DB) error {
-	return db.AutoMigrate(&models.User{}, &models.ScanJob{}, &models.ScanResult{})
+	return db.AutoMigrate(&User{}, &ScanJob{}, &ScanResult{})
 }

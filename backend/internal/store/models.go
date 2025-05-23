@@ -1,10 +1,8 @@
-package models
+package store
 
 import (
 	"time"
 )
-
-// TODO: Switch id to uuid
 
 // pointer indicates that the field is nullable
 type User struct {
