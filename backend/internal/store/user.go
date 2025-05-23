@@ -15,6 +15,14 @@ type UserService struct {
 	ctx context.Context
 }
 
+// TODO: configure the context
+func NewUserService(db *gorm.DB) *UserService {
+	return &UserService{
+		db:  db,
+		ctx: context.Background(),
+	}
+}
+
 func (service *UserService) CreateUser(user *User) error {
 	// Hash the password before storing it
 	hashedPwd, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
@@ -46,4 +54,12 @@ func (service *UserService) AuthenticateUser(username, password string) (string,
 		return "", fmt.Errorf("failed to generate token: %w", err)
 	}
 	return token, nil
+}
+
+func (service *UserService) GetUserByID(userID uint) (*User, error) {
+	var user User
+	if err := service.db.WithContext(service.ctx).First(&user, userID).Error; err != nil {
+		return nil, fmt.Errorf("user not found: %w", err)
+	}
+	return &user, nil
 }

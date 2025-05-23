@@ -3,7 +3,9 @@ package main
 import (
 	"os"
 
+	"github.com/ZhuoyangM/ConfigLeak/internal/controllers"
 	store "github.com/ZhuoyangM/ConfigLeak/internal/store"
+	"github.com/ZhuoyangM/ConfigLeak/internal/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -53,17 +55,32 @@ func main() {
 		panic("failed to migrate database")
 	}
 
+	//setup services
+	userService := store.NewUserService(db)
+
+	//setup controllers
+	userController := controllers.UserController{
+		UserService: userService,
+	}
+
 	// setup gin router
 	router := gin.Default()
-	router.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "Hello World",
+	public := router.Group("/api")
+	{
+		public.GET("/health", func(c *gin.Context) {
+			c.JSON(200, gin.H{
+				"message": "Hello World",
+			})
 		})
-	})
-	router.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
+
+		public.POST("/register", userController.Register)
+		public.POST("/login", userController.Login)
+
+		auth := public.Group("/user", utils.JWTMiddleware())
+		{
+			auth.GET("/profile", userController.GetUserInfo)
+		}
+	}
+
 	router.Run(":8080")
 }

@@ -11,6 +11,14 @@ type ScanService struct {
 	ctx context.Context
 }
 
+// TODO: configure the context
+func NewScanService(db *gorm.DB) *ScanService {
+	return &ScanService{
+		db:  db,
+		ctx: context.Background(),
+	}
+}
+
 func (service *ScanService) CreateScanJob(scanJob *ScanJob) error {
 	return service.db.WithContext(service.ctx).Create(scanJob).Error
 }

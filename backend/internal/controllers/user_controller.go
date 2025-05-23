@@ -1,12 +1,14 @@
 package controllers
 
 import (
+	"net/http"
+
 	"github.com/ZhuoyangM/ConfigLeak/internal/store"
 	"github.com/gin-gonic/gin"
 )
 
 type UserController struct {
-	UserService store.UserService
+	UserService *store.UserService
 }
 
 type RegisterRequest struct {
@@ -23,7 +25,7 @@ type LoginRequest struct {
 func (c *UserController) Register(ctx *gin.Context) {
 	var req RegisterRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(400, gin.H{"error": "Invalid input"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
 		return
 	}
 
@@ -34,14 +36,40 @@ func (c *UserController) Register(ctx *gin.Context) {
 	}
 
 	if err := c.UserService.CreateUser(&user); err != nil {
-		ctx.JSON(500, gin.H{"error": "Failed to create user"})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
 		return
 	}
 
-	ctx.JSON(201, gin.H{"message": "User created successfully"})
+	ctx.JSON(http.StatusCreated, gin.H{"message": "User created successfully"})
 }
 
-func (c *UserController) Login(ctx *gin.Context) {}
+func (c *UserController) Login(ctx *gin.Context) {
+	var req LoginRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	token, err := c.UserService.AuthenticateUser(req.Username, req.Password)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "Login successfully", "token": token})
+}
 
 // GET /api/user (for testing purposes)
-func (c *UserController) GetUserInfo(ctx *gin.Context) {}
+func (c *UserController) GetUserInfo(ctx *gin.Context) {
+	userId, ok := ctx.Get("userId")
+	if !ok {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	user, err := c.UserService.GetUserByID(userId.(uint))
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"message": "User info retrieved successfully", "user": user})
+}

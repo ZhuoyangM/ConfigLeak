@@ -6,10 +6,10 @@ import (
 )
 
 type ScanController struct {
-	ScanService store.ScanService
+	ScanService *store.ScanService
 }
 
-func NewScanController(scanService store.ScanService) *ScanController {
+func NewScanController(scanService *store.ScanService) *ScanController {
 	return &ScanController{
 		ScanService: scanService,
 	}
