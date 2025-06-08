@@ -22,5 +22,19 @@ services:
       - "6379:6379"
     command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
 
+  asynqmon:
+    image: hibiken/asynqmon
+    container_name: configleak-asynqmon
+    platform: linux/amd64
+    ports:
+      - "8080:8080"
+    command:
+      - "-redis-url"
+      - "redis://:${REDIS_PASSWORD}@redis:6379"
+    depends_on:
+      - redis
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+
 volumes:
   pgdata:
