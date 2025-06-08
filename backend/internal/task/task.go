@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 	"sync"
+	"time"
 
 	"github.com/ZhuoyangM/ConfigLeak/internal/utils"
 	"github.com/hibiken/asynq"
@@ -50,16 +52,21 @@ func (h *ScanHandler) HandleScanTask(ctx context.Context, t *asynq.Task) error {
 		return err
 	}
 
-	log.Printf("Starting scan for user %d on target URL %s with %d paths\n", payload.UserID, payload.TargetUrl, len(urls))
-
+	before := time.Now()
 	var wg sync.WaitGroup
+	sem := make(chan struct{}, 30)
 	wg.Add(len(urls))
 	for _, url := range urls {
-		go scanUrl(h.Client, &wg, url)
+		sem <- struct{}{}
+		go func(url string) {
+			defer func() { <-sem }()
+			defer wg.Done()
+			scanUrl(h.Client, url)
+		}(url)
 	}
 	wg.Wait()
-
-	log.Printf("Scan completed for user %d on target URL %s\n", payload.UserID, payload.TargetUrl)
+	elapsed := time.Since(before)
+	log.Printf("Scan completed for user %d on target URL %s in %s\n", payload.UserID, payload.TargetUrl, elapsed)
 	return nil
 }
 
@@ -70,13 +77,17 @@ func NewScanHandler(client *http.Client, paths []string) *ScanHandler {
 	}
 }
 
-func scanUrl(client *http.Client, wg *sync.WaitGroup, url string) {
-	defer wg.Done()
+func scanUrl(client *http.Client, url string) {
 	response, err := client.Get(url)
 	if err != nil {
-		log.Printf("Error scanning URL %s: %v\n", url, err)
+		if os.IsNotExist(err) {
+			log.Printf("URL %s does not exist", url)
+		} else if os.IsTimeout(err) {
+			log.Printf("Timeout while scanning URL %s", url)
+		} else {
+			log.Printf("Error scanning URL %s: %v\n", url, err)
+		}
 		return
 	}
 	defer response.Body.Close()
-	log.Printf("Scanned URL %s: Status Code %d\n", url, response.StatusCode)
 }

@@ -27,7 +27,7 @@ func main() {
 		Password: os.Getenv("REDIS_PASSWORD"),
 	}
 	asynqConfig := asynq.Config{
-		Concurrency: 10,
+		Concurrency: 20,
 	}
 	server := asynq.NewServer(
 		redisConfig,
