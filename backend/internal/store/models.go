@@ -26,7 +26,7 @@ type ScanResult struct {
 	ScanJobID     uint    `gorm:"not null"`
 	ScanJob       ScanJob `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	ScanUrl       string  `gorm:"not null"`
-	Status        string  `gorm:"not null"` // "unscanned", "scanned", "timeout"
+	Status        string  `gorm:"not null"` // "completed", "failed", "timeout", "skipped"
 	Code          *int    // HTTP status code
 	ContentLength *int    // in bytes
 }

@@ -23,24 +23,19 @@ func NewUserService(db *gorm.DB) *UserService {
 	}
 }
 
-func (service *UserService) CreateUser(user *User) error {
-	// Hash the password before storing it
-	hashedPwd, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+func (service *UserService) CreateUser(req *RegisterRequest) error {
+	user, err := ToUser(req)
 	if err != nil {
-		return fmt.Errorf("failed to hash password: %w", err)
+		return err
 	}
-	user.Password = string(hashedPwd)
-
-	// Escape special characters in username and email
-	user.Username = html.EscapeString(user.Username)
-	user.Email = html.EscapeString(user.Email)
-
 	return service.db.WithContext(service.ctx).Create(user).Error
 }
 
-func (service *UserService) AuthenticateUser(username, password string) (string, error) {
+func (service *UserService) AuthenticateUser(req *LoginRequest) (string, error) {
 	// Find user and check password
 	var user User
+	username := html.EscapeString(req.Username)
+	password := html.EscapeString(req.Password)
 	if err := service.db.WithContext(service.ctx).Where("username = ?", username).First(&user).Error; err != nil {
 		return "", fmt.Errorf("user not found: %w", err)
 	}
@@ -56,10 +51,11 @@ func (service *UserService) AuthenticateUser(username, password string) (string,
 	return token, nil
 }
 
-func (service *UserService) GetUserByID(userID uint) (*User, error) {
+func (service *UserService) GetUserByID(userID uint) (*GetUserResponse, error) {
 	var user User
 	if err := service.db.WithContext(service.ctx).First(&user, userID).Error; err != nil {
 		return nil, fmt.Errorf("user not found: %w", err)
 	}
-	return &user, nil
+	resp := ToGetUserResponse(&user)
+	return resp, nil
 }

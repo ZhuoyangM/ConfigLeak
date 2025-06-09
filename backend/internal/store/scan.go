@@ -19,7 +19,8 @@ func NewScanService(db *gorm.DB) *ScanService {
 	}
 }
 
-func (service *ScanService) CreateScanJob(scanJob *ScanJob) error {
+func (service *ScanService) CreateScanJob(req *CreateScanJobRequest) error {
+	scanJob := ToScanJob(req)
 	return service.db.WithContext(service.ctx).Create(scanJob).Error
 }
 
