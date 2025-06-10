@@ -51,11 +51,11 @@ func (service *UserService) AuthenticateUser(req *LoginRequest) (string, error) 
 	return token, nil
 }
 
-func (service *UserService) GetUserByID(userID uint) (*GetUserResponse, error) {
+func (service *UserService) GetUserByID(userID uint) (*User, error) {
 	var user User
 	if err := service.db.WithContext(service.ctx).First(&user, userID).Error; err != nil {
 		return nil, fmt.Errorf("user not found: %w", err)
 	}
-	resp := ToGetUserResponse(&user)
-	return resp, nil
+
+	return &user, nil
 }

@@ -92,3 +92,13 @@ func ToScanJob(req *CreateScanJobRequest) *ScanJob {
 		Status:    req.Status,
 	}
 }
+
+func ToGetScanJobResponse(job *ScanJob) *GetScanJobResponse {
+	return &GetScanJobResponse{
+		JobID:     job.ID,
+		UserID:    job.UserID,
+		TargetUrl: job.TargetUrl,
+		Status:    job.Status,
+		CreatedAt: job.CreatedAt.Format("2006-01-02 15:04:05"),
+	}
+}

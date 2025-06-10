@@ -53,5 +53,6 @@ func (c *UserController) GetUserInfo(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"message": "User info retrieved successfully", "user": user})
+	resp := store.ToGetUserResponse(user)
+	ctx.JSON(http.StatusOK, gin.H{"message": "User info retrieved successfully", "user": resp})
 }

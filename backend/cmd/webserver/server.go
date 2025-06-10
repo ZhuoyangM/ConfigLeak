@@ -7,6 +7,7 @@ import (
 	store "github.com/ZhuoyangM/ConfigLeak/internal/store"
 	"github.com/ZhuoyangM/ConfigLeak/internal/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/hibiken/asynq"
 	"github.com/joho/godotenv"
 )
 
@@ -57,10 +58,23 @@ func main() {
 
 	//setup services
 	userService := store.NewUserService(db)
+	scanService := store.NewScanService(db)
+
+	redisConfig := asynq.RedisClientOpt{
+		Addr:     "localhost:6379",
+		DB:       0,
+		Password: os.Getenv("REDIS_PASSWORD"),
+	}
+
+	asynqClient := asynq.NewClient(redisConfig)
 
 	//setup controllers
 	userController := controllers.UserController{
 		UserService: userService,
+	}
+	scanController := controllers.ScanController{
+		ScanService: scanService,
+		AsynqClient: asynqClient,
 	}
 
 	// setup gin router
@@ -80,6 +94,16 @@ func main() {
 		{
 			auth.GET("/profile", userController.GetUserInfo)
 		}
+
+		scan := public.Group("/jobs", utils.JWTMiddleware())
+		{
+			scan.POST("/", scanController.StartScan)
+			scan.GET("/", scanController.GetAllScanJobs)
+			scan.GET("/:id", scanController.GetScanJob)
+			scan.DELETE("/:id", scanController.DeleteScanJob)
+			scan.GET("/:id/results", scanController.GetScanResults)
+		}
+
 	}
 
 	router.Run(":8000")
