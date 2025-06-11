@@ -18,7 +18,10 @@ type ScanJob struct {
 	User      User      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	TargetUrl string    `gorm:"not null"`
 	CreatedAt time.Time `gorm:"autoCreateTime"`
-	Status    string    `gorm:"not null"` // "running", "completed", "failed"
+	Status    string    `gorm:"not null"` // "queued", "scanning", "completed", "failed"
+	// TODO: more fields
+	// SensitiveCnt  uint nullable
+	// SensitivePaths JSONB nullable
 }
 
 type ScanResult struct {
